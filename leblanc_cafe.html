@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cookie&display=swap" rel="stylesheet">
+    <title>Daily Caffeine Dose</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Cookie", cursive;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .background-video {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+            transition: transform 2s ease-in-out;
+        }
+
+        .background-video.zoom-in {
+            transform: scale(1.15);
+        }
+
+        .video-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 0;
+            transition: opacity 2s ease-in-out;
+        }
+
+        .video-overlay.fade-out {
+            opacity: 0;
+        }
+
+        .container {
+            text-align: center;
+            cursor: pointer;
+            position: relative;
+            z-index: 1;
+        }
+
+        .caffeine-text {
+            font-size: 4rem;
+            color: #fff;
+            text-shadow: 3px 3px 10px rgba(0, 0, 0, 0.7);
+            margin-bottom: 30px;
+            animation: breathingGlow 3s ease-in-out infinite;
+            transition: all 0.3s ease;
+        }
+
+        @keyframes breathingGlow {
+            0% {
+                text-shadow: 3px 3px 10px rgba(0, 0, 0, 0.7),
+                             0 0 10px rgba(255, 255, 255, 0.3);
+            }
+            50% {
+                text-shadow: 3px 3px 10px rgba(0, 0, 0, 0.7),
+                             0 0 25px rgba(255, 255, 255, 0.6),
+                             0 0 35px rgba(255, 255, 255, 0.4),
+                             0 0 45px rgba(255, 255, 255, 0.2);
+            }
+            100% {
+                text-shadow: 3px 3px 10px rgba(0, 0, 0, 0.7),
+                             0 0 10px rgba(255, 255, 255, 0.3);
+            }
+        }
+
+        .video-credit {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            color: rgba(255, 255, 255, 0.7);
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
+            padding: 10px 15px;
+            border-radius: 25px;
+            font-size: 1rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .video-credit a {
+            color: rgba(207, 110, 7, 0.7);
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+            transition: color 0.3s ease;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .video-credit a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .caffeine-text {
+                font-size: 4rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <video class="background-video" id="backgroundVideo" loop>
+        <source src="res/rain_leblanc.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+
+    <div class="video-overlay" id="videoOverlay"></div>
+
+    <div class="container" id="mainContainer">
+        <div class="caffeine-text">
+            Click to enter ...
+        </div>
+    </div>
+
+    <div class="video-credit">
+        Video by <a href="https://www.youtube.com/watch?v=yp271fHCaW4" target="_blank">Café Leblanc Rainy Day</a>
+    </div>
+
+    <script>
+
+        // Scrolling tab title effect
+        const originalTitle = "Daily Caffeine Dose";
+        const scrollingText = "☕ Daily Caffeine Dose ";
+        let scrollPosition = 0;
+        const scrollSpeed = 200; // milliseconds
+
+        function scrollTitle() {
+            const visibleLength = 25; // Number of characters visible at once
+            const displayText = (scrollingText + scrollingText).substring(scrollPosition, scrollPosition + visibleLength);
+            document.title = displayText;
+
+            scrollPosition++;
+            if (scrollPosition >= scrollingText.length) {
+                scrollPosition = 0;
+            }
+        }
+
+        // Start scrolling title
+        const titleInterval = setInterval(scrollTitle, scrollSpeed);
+
+        // Stop scrolling and reset title when page becomes hidden
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                clearInterval(titleInterval);
+                document.title = originalTitle;
+            } else {
+                // Restart scrolling when page becomes visible again
+                setTimeout(() => {
+                    const newTitleInterval = setInterval(scrollTitle, scrollSpeed);
+                }, 100);
+            }
+        });
+        const mainContainer = document.getElementById('mainContainer');
+        const backgroundVideo = document.getElementById('backgroundVideo');
+        const videoOverlay = document.getElementById('videoOverlay');
+
+        mainContainer.addEventListener('click', () => {
+            // Start zoom effect on background video
+            backgroundVideo.classList.add('zoom-in');
+
+            // Fade out overlay
+            videoOverlay.classList.add('fade-out');
+
+            // Gradually fade out the main container
+            mainContainer.style.transition = 'opacity 2s ease-in-out';
+            mainContainer.style.opacity = '0';
+
+            // After transition, play video with audio
+
+            backgroundVideo.volume = 0;
+            backgroundVideo.muted = false;
+
+            backgroundVideo.play().then(() => {
+                // Gradually increase volume
+                const volumeStep = 0.02;
+                const volumeInterval = 100;
+
+                const fadeInAudio = setInterval(() => {
+                    if (backgroundVideo.volume < 0.2) {
+                        backgroundVideo.volume = Math.min(backgroundVideo.volume + volumeStep, 1);
+                    } else {
+                        clearInterval(fadeInAudio);
+                    }
+                }, volumeInterval);
+            }).catch(e => {
+                console.log('Autoplay prevented by browser:', e);
+                // Fallback: try muted first, then unmute
+                backgroundVideo.muted = true;
+                backgroundVideo.play().then(() => {
+                    setTimeout(() => {
+                        backgroundVideo.muted = false;
+                        backgroundVideo.volume = 0;
+
+                        const volumeStep = 0.02;
+                        const volumeInterval = 100;
+
+                        const fadeInAudio = setInterval(() => {
+                            if (backgroundVideo.volume < 0.2) {
+                                backgroundVideo.volume = Math.min(backgroundVideo.volume + volumeStep, 1);
+                            } else {
+                                clearInterval(fadeInAudio);
+                            }
+                        }, volumeInterval);
+                    }, 1000);
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>
